@@ -10,6 +10,7 @@ a = Analysis(
     binaries=[],
     datas=[(str(project / 'app' / 'static'), 'app/static')],
     hiddenimports=[
+        'app.editor',
         'uvicorn.logging','uvicorn.loops.auto','uvicorn.protocols.http.auto',
         'uvicorn.protocols.websockets.auto','uvicorn.lifespan.on',
         'scipy.stats','pyreadstat','openpyxl','xlrd','odf','webview',
@@ -37,8 +38,8 @@ if sys.platform == 'darwin':
         info_plist={
             'CFBundleName': 'BioStat Studio',
             'CFBundleDisplayName': 'BioStat Studio',
-            'CFBundleShortVersionString': '0.4.0',
-            'CFBundleVersion': '0.4.0',
+            'CFBundleShortVersionString': '0.5.0',
+            'CFBundleVersion': '0.5.0',
             'NSHighResolutionCapable': True,
             'NSHumanReadableCopyright': 'Diseño y desarrollo: Dr. Roberto Joel Tirado Reyes',
         },
