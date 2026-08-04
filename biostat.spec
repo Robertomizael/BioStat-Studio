@@ -12,7 +12,9 @@ a = Analysis(
     hiddenimports=[
         'uvicorn.logging','uvicorn.loops.auto','uvicorn.protocols.http.auto',
         'uvicorn.protocols.websockets.auto','uvicorn.lifespan.on',
-        'scipy.stats','pyreadstat','openpyxl','xlrd','webview',
+        'scipy.stats','pyreadstat','openpyxl','xlrd','odf','webview',
+        'statsmodels.api','statsmodels.stats.power','sklearn.metrics',
+        'lifelines','lifelines.fitters.kaplan_meier_fitter',
         'webview.platforms.cocoa','webview.platforms.winforms'
     ],
     hookspath=[], hooksconfig={}, runtime_hooks=[], excludes=['tkinter'],
@@ -35,7 +37,9 @@ if sys.platform == 'darwin':
         info_plist={
             'CFBundleName': 'BioStat Studio',
             'CFBundleDisplayName': 'BioStat Studio',
-            'CFBundleShortVersionString': '0.3.0',
+            'CFBundleShortVersionString': '0.4.0',
+            'CFBundleVersion': '0.4.0',
             'NSHighResolutionCapable': True,
+            'NSHumanReadableCopyright': 'Diseño y desarrollo: Dr. Roberto Joel Tirado Reyes',
         },
     )
