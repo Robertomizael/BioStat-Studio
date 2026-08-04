@@ -1,0 +1,11 @@
+fastapi>=0.115
+uvicorn>=0.30
+pandas>=2.2
+numpy>=2.0
+scipy>=1.14
+openpyxl>=3.1
+xlrd>=2.0
+pyreadstat>=1.2
+python-multipart>=0.0.9
+pywebview>=5.3
+pyinstaller>=6.10
