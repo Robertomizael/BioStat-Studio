@@ -15,7 +15,7 @@ def free_port() -> int:
         return int(sock.getsockname()[1])
 
 
-def wait_for_server(host: str, port: int, timeout: float = 20.0) -> None:
+def wait_for_server(host: str, port: int, timeout: float = 30.0) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -30,6 +30,8 @@ def main() -> None:
     host = "127.0.0.1"
     port = free_port()
     from app.main import app
+    from app.editor import router as editor_router
+    app.include_router(editor_router)
     config = uvicorn.Config(app, host=host, port=port, log_level="error")
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, daemon=True)
@@ -38,9 +40,9 @@ def main() -> None:
     webview.create_window(
         "BioStat Studio",
         f"http://{host}:{port}",
-        width=1440,
-        height=900,
-        min_size=(1024, 700),
+        width=1500,
+        height=920,
+        min_size=(1100, 720),
         confirm_close=True,
     )
     webview.start(debug=False)
