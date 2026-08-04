@@ -39,7 +39,7 @@ def main() -> None:
     wait_for_server(host, port)
     webview.create_window(
         "BioStat Studio",
-        f"http://{host}:{port}",
+        f"http://{host}:{port}/api/editor/ui",
         width=1500,
         height=920,
         min_size=(1100, 720),
