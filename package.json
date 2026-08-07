@@ -1,0 +1,51 @@
+{
+  "name": "biostat-studio",
+  "version": "0.6.0",
+  "description": "Aplicación estadística y bioestadística visual, local y sin conexión",
+  "main": "main.js",
+  "author": "Dr. Roberto Joel Tirado Reyes",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist:mac": "electron-builder --mac dmg --universal"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "jstat": "^1.9.6",
+    "multer": "^2.0.2",
+    "papaparse": "^5.5.3",
+    "simple-statistics": "^7.8.8",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "mx.robertojoel.biostatstudio",
+    "productName": "BioStat Studio",
+    "asar": true,
+    "files": ["main.js", "public/**/*", "package.json"],
+    "directories": {"output": "dist"},
+    "mac": {
+      "category": "public.app-category.education",
+      "target": [{"target": "dmg", "arch": ["universal"]}],
+      "artifactName": "BioStat-Studio-${version}-macOS-${arch}.${ext}",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "target": [{"target": "nsis", "arch": ["x64"]}],
+      "artifactName": "BioStat-Studio-${version}-Windows-${arch}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BioStat Studio"
+    }
+  }
+}
