@@ -17,11 +17,15 @@ jobs:
         include:
           - os: windows-latest
             command: npm run dist:win
-            artifact: BioStat-Studio-Windows
+            artifact: BioStat-Studio-Windows-x64
             files: dist/*.exe
-          - os: macos-latest
-            command: npm run dist:mac
-            artifact: BioStat-Studio-macOS
+          - os: macos-13
+            command: npm run dist:mac:x64
+            artifact: BioStat-Studio-macOS-Intel
+            files: dist/*.dmg
+          - os: macos-14
+            command: npm run dist:mac:arm64
+            artifact: BioStat-Studio-macOS-Apple-Silicon
             files: dist/*.dmg
     runs-on: ${{ matrix.os }}
     steps:
@@ -29,6 +33,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias del importador
+        run: python -m pip install -r requirements-importer.txt
+      - name: Compilar motor ReadStat
+        shell: bash
+        run: |
+          rm -rf dist-importer build-importer
+          python -m PyInstaller --onefile --clean --name biostat-importer --distpath dist-importer --workpath build-importer importer.py
       - run: npm install
       - run: npm run check
       - run: ${{ matrix.command }}
