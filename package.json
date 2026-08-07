@@ -1,13 +1,13 @@
 {
   "name": "biostat-studio",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Aplicación estadística y bioestadística visual, local y sin conexión",
-  "main": "main.js",
+  "main": "desktop.js",
   "author": "Dr. Roberto Joel Tirado Reyes",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "check": "node --check main.js",
+    "check": "node --check desktop.js && node --check stats.js",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
     "dist:mac:x64": "bash scripts/build-mac.sh x64",
     "dist:mac:arm64": "bash scripts/build-mac.sh arm64"
@@ -28,7 +28,7 @@
     "appId": "mx.robertojoel.biostatstudio",
     "productName": "BioStat Studio",
     "asar": true,
-    "files": ["main.js", "public/**/*", "package.json"],
+    "files": ["desktop.js", "stats.js", "public/**/*", "package.json"],
     "extraResources": [{"from": "dist-importer", "to": "importer", "filter": ["**/*"]}],
     "directories": {"output": "dist"},
     "mac": {
