@@ -8,9 +8,9 @@
   "scripts": {
     "start": "electron .",
     "check": "node --check main.js",
-    "dist:win": "electron-builder --win nsis --x64",
-    "dist:mac:x64": "electron-builder --mac dmg --x64",
-    "dist:mac:arm64": "electron-builder --mac dmg --arm64"
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:mac:x64": "electron-builder --mac dmg --x64 --publish never",
+    "dist:mac:arm64": "electron-builder --mac dmg --arm64 --publish never"
   },
   "dependencies": {
     "express": "^5.1.0",
