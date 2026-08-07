@@ -1,5 +1,6 @@
 'use strict';
 const { app, BrowserWindow, shell } = require('electron');
+const { execFile } = require('child_process');
 const express = require('express');
 const multer = require('multer');
 const Papa = require('papaparse');
@@ -8,6 +9,8 @@ const ss = require('simple-statistics');
 const { jStat } = require('jstat');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
+const os = require('os');
 
 const datasets = new Map();
 let server;
@@ -17,6 +20,23 @@ const safe = x => Number.isFinite(x) ? x : null;
 const mean = a => a.length ? ss.mean(a) : null;
 const sd = a => a.length > 1 ? ss.sampleStandardDeviation(a) : null;
 
+function importerPath() {
+  const exe = process.platform === 'win32' ? 'biostat-importer.exe' : 'biostat-importer';
+  return app.isPackaged ? path.join(process.resourcesPath, 'importer', exe) : path.join(__dirname, 'dist-importer', exe);
+}
+function importWithReadStat(buffer, originalName) {
+  return new Promise((resolve, reject) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'biostat-'));
+    const input = path.join(dir, path.basename(originalName));
+    fs.writeFileSync(input, buffer);
+    execFile(importerPath(), ['import', input], { maxBuffer: 500 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => {
+      fs.rmSync(dir, { recursive: true, force: true });
+      if (err) return reject(new Error((stderr || err.message || 'No fue posible importar el archivo').trim()));
+      try { resolve(JSON.parse(stdout)); }
+      catch { reject(new Error('El motor de importación devolvió una respuesta inválida.')); }
+    });
+  });
+}
 function normalize(rows) {
   return rows.filter(r => Object.values(r).some(v => v !== null && String(v).trim() !== '')).map(r =>
     Object.fromEntries(Object.entries(r).map(([k,v]) => {
@@ -46,19 +66,23 @@ function createServer(){
   api.use(express.json({limit:'10mb'}));
   api.use(express.static(path.join(__dirname,'public')));
 
-  api.post('/api/import',upload.single('file'),(req,res)=>{try{
+  api.post('/api/import',upload.single('file'),async(req,res)=>{try{
     if(!req.file) throw new Error('Seleccione un archivo.');
     const ext=path.extname(req.file.originalname).toLowerCase();
-    let rows=[];
+    let rows=[], vars=null, name=path.basename(req.file.originalname,ext);
     if(['.csv','.tsv','.txt'].includes(ext)){
       const parsed=Papa.parse(req.file.buffer.toString('utf8').replace(/^\uFEFF/,''),{header:true,dynamicTyping:true,skipEmptyLines:true,delimiter:ext==='.tsv'?'\t':''});
+      if(parsed.errors.length && !parsed.data.length) throw new Error(parsed.errors[0].message);
       rows=parsed.data;
     } else if(['.xlsx','.xls','.ods'].includes(ext)){
       const wb=XLSX.read(req.file.buffer,{type:'buffer',cellDates:true});
       rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:null});
-    } else throw new Error('Use CSV, TSV, TXT, XLSX, XLS u ODS. SAV, ZSAV, POR, DTA y SAS requieren el motor especializado de una versión posterior.');
+    } else if(['.sav','.zsav','.por','.dta','.sas7bdat','.xpt'].includes(ext)) {
+      const imported=await importWithReadStat(req.file.buffer,req.file.originalname);
+      rows=imported.rows; vars=imported.variables; name=imported.name || name;
+    } else throw new Error('Use CSV, TSV, TXT, XLSX, XLS, ODS, SAV, ZSAV, POR, DTA, SAS7BDAT o XPT.');
     rows=normalize(rows); if(!rows.length) throw new Error('El archivo no contiene datos utilizables.');
-    const dataset_id=crypto.randomUUID(), name=path.basename(req.file.originalname,ext), vars=variables(rows);
+    const dataset_id=crypto.randomUUID(); vars=vars || variables(rows);
     datasets.set(dataset_id,{name,rows,variables:vars});
     res.json({dataset_id,name,rows:rows.length,columns:vars.length,preview:rows.slice(0,5000),variables:vars});
   }catch(e){fail(res,e)}});
