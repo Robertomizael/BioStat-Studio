@@ -29,27 +29,50 @@ jobs:
             files: dist/*.dmg
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - uses: actions/setup-python@v5
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Instalar dependencias del importador
-        run: python -m pip install -r requirements-importer.txt
-      - name: Compilar motor ReadStat
+
+      - name: Instalar dependencias Python del importador
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements-importer.txt
+        shell: bash
+
+      - name: Compilar motor de importación ReadStat
         shell: bash
         run: |
           rm -rf dist-importer build-importer
           python -m PyInstaller --onefile --clean --name biostat-importer --distpath dist-importer --workpath build-importer importer.py
-      - run: npm install
-      - run: npm run check
-      - run: ${{ matrix.command }}
+          echo "Contenido del motor compilado:"
+          ls -la dist-importer
+
+      - name: Instalar dependencias de BioStat Studio
+        run: npm install --no-audit --no-fund
+
+      - name: Verificar JavaScript principal
+        run: npm run check
+
+      - name: Compilar instalador
+        run: ${{ matrix.command }}
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-      - uses: actions/upload-artifact@v4
+
+      - name: Mostrar instaladores generados
+        shell: bash
+        run: |
+          echo "Contenido de dist:"
+          find dist -maxdepth 2 -type f -print || true
+
+      - name: Subir instalador
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.files }}
