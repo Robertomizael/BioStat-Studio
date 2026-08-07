@@ -1,6 +1,6 @@
 {
   "name": "biostat-studio",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Aplicación estadística y bioestadística visual, local y sin conexión",
   "main": "main.js",
   "author": "Dr. Roberto Joel Tirado Reyes",
@@ -9,7 +9,8 @@
     "start": "electron .",
     "check": "node --check main.js",
     "dist:win": "electron-builder --win nsis --x64",
-    "dist:mac": "electron-builder --mac dmg --universal"
+    "dist:mac:x64": "electron-builder --mac dmg --x64",
+    "dist:mac:arm64": "electron-builder --mac dmg --arm64"
   },
   "dependencies": {
     "express": "^5.1.0",
@@ -28,14 +29,16 @@
     "productName": "BioStat Studio",
     "asar": true,
     "files": ["main.js", "public/**/*", "package.json"],
+    "extraResources": [{"from": "dist-importer", "to": "importer", "filter": ["**/*"]}],
     "directories": {"output": "dist"},
     "mac": {
       "category": "public.app-category.education",
-      "target": [{"target": "dmg", "arch": ["universal"]}],
+      "target": ["dmg"],
       "artifactName": "BioStat-Studio-${version}-macOS-${arch}.${ext}",
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
+    "dmg": {"title": "BioStat Studio ${version}"},
     "win": {
       "target": [{"target": "nsis", "arch": ["x64"]}],
       "artifactName": "BioStat-Studio-${version}-Windows-${arch}-Setup.${ext}"
