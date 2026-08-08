@@ -1,6 +1,6 @@
 {
   "name": "biostat-studio",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Aplicación estadística y bioestadística visual, local y sin conexión",
   "main": "desktop.js",
   "author": "Dr. Roberto Joel Tirado Reyes",
